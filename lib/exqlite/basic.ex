@@ -1,6 +1,6 @@
 defmodule Exqlite.Basic do
   @moduledoc """
-  A very basis API without lots of options to allow simpler usage for basic needs.
+  A very basic API without lots of options to allow simpler usage for basic needs.
   """
 
   alias Exqlite.Connection
