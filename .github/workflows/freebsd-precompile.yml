@@ -1,0 +1,42 @@
+name: bsd-precompile
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  precompile:
+    runs-on: ubuntu-latest
+    env:
+      MIX_ENV: prod
+      CC_PRECOMPILER_PRECOMPILE_ONLY_LOCAL: "true"
+    name: FreeBSD x86_64
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build in FreeBSD VM
+        uses: vmactions/freebsd-vm@v1
+        with:
+          usesh: true
+          run: |
+            pkg install -y erlang-runtime28 elixir-devel git gmake gcc
+            export PATH=/usr/local/lib/erlang28/bin:${PATH}
+            export MAKE=gmake
+            mix local.hex --force
+            mix local.rebar --force
+            export ELIXIR_MAKE_CACHE_DIR=$(pwd)/cache
+            mkdir -p "${ELIXIR_MAKE_CACHE_DIR}"
+            mix deps.get
+            mix elixir_make.precompile
+
+      - uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            cache/*.tar.gz

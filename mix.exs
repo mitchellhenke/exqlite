@@ -149,7 +149,8 @@ defmodule Exqlite.MixProject do
         },
         {:win32, :nt} => %{
           :include_default_ones => true
-        }
+        },
+        {:unix, :freebsd} => %{}
       }
     ]
   end
